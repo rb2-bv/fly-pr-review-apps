@@ -59,8 +59,8 @@ if [ -n "$INPUT_BUILDARGS" ]; then
 fi
 
 BUILD_SECRETS=""
-if [ -n "$INPUT_BUILD_SECRETS" ]; then 
-  for arg in $INPUT_BUILD_SECRETS; do
+if [ -n "$INPUT_BUILDSECRETS" ]; then 
+  for arg in $INPUT_BUILDSECRETS; do
     BUILD_SECRETS="$BUILD_SECRETS --build-secret $arg"
   done
 
