@@ -26,6 +26,8 @@ inputs:
     description: Secrets to be set on the app. Separate multiple secrets with a space
   buildargs:
     description: Build time variables. Separate multiple args with a space
+  buildsecrets:
+    description: Build time secrets. Separate multiple args with a space
   env:
     description: Environment variables. Separate multiple args with a space
   vmsize:
