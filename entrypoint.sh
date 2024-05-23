@@ -48,34 +48,25 @@ if [ -n "$INPUT_SECRETS" ]; then
   echo $INPUT_SECRETS | tr " " "\n" | flyctl secrets import --app "$app"
 fi
 
-BUILD_ARGS=""
+BUILD_ARGS_ARRAY=()
 if [ -n "$INPUT_BUILDARGS" ]; then 
   for arg in $INPUT_BUILDARGS; do
-    BUILD_ARGS="$BUILD_ARGS --build-arg $arg"
+    BUILD_ARGS_ARRAY+=("--build-arg" "$arg")
   done
-
-  # Remove leading space
-  BUILD_ARGS=$(echo $BUILD_ARGS | xargs)
 fi
 
-BUILD_SECRETS=""
+BUILD_SECRETS_ARRAY=()
 if [ -n "$INPUT_BUILDSECRETS" ]; then 
   for arg in $INPUT_BUILDSECRETS; do
-    BUILD_SECRETS="$BUILD_SECRETS --build-secret $arg"
+    BUILD_SECRETS_ARRAY+=("--build-secret" "$arg")
   done
-
-  # Remove leading space
-  BUILD_SECRETS=$(echo $BUILD_SECRETS | xargs)
 fi
 
-ENV=""
+ENV_ARRAY=()
 if [ -n "$INPUT_ENV" ]; then 
   for arg in $INPUT_ENV; do
-    ENV="$ENV --env $arg"
+    ENV_ARRAY+=("--env" "$arg")
   done
-
-  # Remove leading space
-  ENV=$(echo $ENV | xargs)
 fi
 
 
@@ -87,9 +78,9 @@ fi
 # Trigger the deploy of the new version.
 echo "Contents of config $config file: " && cat "$config"
 if [ -n "$INPUT_VM" ]; then
-  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-size "$INPUT_VMSIZE" --$INPUT_BUILDER "$BUILD_ARGS" "$BUILD_SECRETS" "$ENV"
+  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-size "$INPUT_VMSIZE" --$INPUT_BUILDER "${BUILD_ARGS_ARRAY[@]}" "${BUILD_SECRETS_ARRAY[@]}" "${ENV_ARRAY[@]}"
 else
-  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-cpu-kind "$INPUT_CPUKIND" --vm-cpus $INPUT_CPU --vm-memory "$INPUT_MEMORY" --$INPUT_BUILDER "$BUILD_ARGS" "$BUILD_SECRETS" "$ENV"
+  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-cpu-kind "$INPUT_CPUKIND" --vm-cpus $INPUT_CPU --vm-memory "$INPUT_MEMORY" --$INPUT_BUILDER "${BUILD_ARGS_ARRAY[@]}" "${BUILD_SECRETS_ARRAY[@]}" "${ENV_ARRAY[@]}"
 fi
 
 # Make some info available to the GitHub workflow.
