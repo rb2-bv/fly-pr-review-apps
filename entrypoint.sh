@@ -58,6 +58,17 @@ if [ -n "$INPUT_BUILDARGS" ]; then
   BUILD_ARGS=$(echo $BUILD_ARGS | xargs)
 fi
 
+ENV=""
+if [ -n "$INPUT_ENV" ]; then 
+  for arg in $INPUT_ENV; do
+    ENV="$ENV --env $arg"
+  done
+
+  # Remove leading space
+  ENV=$(echo $ENV | xargs)
+fi
+
+
 # Attach postgres cluster to the app if specified.
 if [ -n "$INPUT_POSTGRES" ]; then
   flyctl postgres attach "$INPUT_POSTGRES" --app "$app" || true
@@ -66,9 +77,9 @@ fi
 # Trigger the deploy of the new version.
 echo "Contents of config $config file: " && cat "$config"
 if [ -n "$INPUT_VM" ]; then
-  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-size "$INPUT_VMSIZE" --$INPUT_BUILDER $BUILDARGS
+  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-size "$INPUT_VMSIZE" --$INPUT_BUILDER $BUILDARGS $ENV
 else
-  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-cpu-kind "$INPUT_CPUKIND" --vm-cpus $INPUT_CPU --vm-memory "$INPUT_MEMORY" --$INPUT_BUILDER --build-arg $BUILDARGS
+  flyctl deploy --config "$config" --app "$app" --regions "$region" --image "$image" --strategy immediate --ha=$INPUT_HA --vm-cpu-kind "$INPUT_CPUKIND" --vm-cpus $INPUT_CPU --vm-memory "$INPUT_MEMORY" --$INPUT_BUILDER $BUILDARGS $ENV
 fi
 
 # Make some info available to the GitHub workflow.
